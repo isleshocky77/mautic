@@ -111,10 +111,13 @@ class BuilderSubscriber extends CommonSubscriber
         }
 
         $tokens = [
-            '{unsubscribe_text}' => $this->translator->trans('mautic.email.token.unsubscribe_text'),
-            '{webview_text}'     => $this->translator->trans('mautic.email.token.webview_text'),
-            '{signature}'        => $this->translator->trans('mautic.email.token.signature'),
-            '{subject}'          => $this->translator->trans('mautic.email.subject'),
+            '{unsubscribe_text}'                     => $this->translator->trans('mautic.email.token.unsubscribe_text'),
+            '{webview_text}'                         => $this->translator->trans('mautic.email.token.webview_text'),
+            '{signature}'                            => $this->translator->trans('mautic.email.token.signature'),
+            '{subject}'                              => $this->translator->trans('mautic.email.subject'),
+            '{contactfield=owner_email}'             => $this->translator->trans('mautic.email.token.owner.email'),
+            '{contactfield=owner_first_name}'        => $this->translator->trans('mautic.email.token.owner.first_name'),
+            '{contactfield=owner_last_name}'         => $this->translator->trans('mautic.email.token.owner.last_name'),
         ];
 
         if ($event->tokensRequested(array_keys($tokens))) {

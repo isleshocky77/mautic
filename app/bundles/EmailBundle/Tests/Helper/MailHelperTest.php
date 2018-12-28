@@ -253,6 +253,50 @@ class MailHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['contact3@somewhere.com' => null], $mailer->message->getTo());
     }
 
+    public function testQueuedOwnerTokens()
+    {
+        $mockFactory = $this->getMockFactory();
+
+        $transport   = new BatchTransport();
+        $swiftMailer = new \Swift_Mailer($transport);
+
+        $mailer = new MailHelper($mockFactory, $swiftMailer, ['nobody@nowhere.com' => 'No Body']);
+        $mailer->enableQueue();
+
+        $mailer->setSubject('Hello');
+
+        $body =<<<EOF
+Owner First Name: {contactfield=owner_first_name}
+Owner Last Name: {contactfield=owner_last_name}
+Owner Email: {contactfield=owner_email}
+EOF;
+        $mailer->setBody($body);
+
+        foreach ($this->contacts as $contact) {
+            $mailer->addTo($contact['email']);
+            $mailer->setLead($contact);
+            $mailer->queue();
+        }
+
+        $mailer->flushQueue([]);
+
+        $metadatas     = $transport->getMetadatas();
+
+        foreach ($metadatas as $key => $metadata) {
+            foreach ($metadata as $email => $metadatum) {
+                $lead = array_pop(array_filter($this->contacts, function ($contact) use ($email) {
+                    return $contact['email'] === $email;
+                }));
+                if ($lead['owner_id'] > 0) {
+                    $owner = $mockFactory->getModel('lead')->getRepository()->getLeadOwner($lead['owner_id']);
+                    $this->assertEquals($owner['first_name'], $metadatum['tokens']['{contactfield=owner_first_name}']);
+                    $this->assertEquals($owner['last_name'], $metadatum['tokens']['{contactfield=owner_last_name}']);
+                    $this->assertEquals($owner['email'], $metadatum['tokens']['{contactfield=owner_email}']);
+                }
+            }
+        }
+    }
+
     public function testMailAsOwnerWithEncodedCharactersInName()
     {
         $mockFactory = $this->getMockFactory();
@@ -367,6 +411,36 @@ class MailHelperTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals('nobody@nowhere.com', $from);
                 $this->assertEquals('{signature}', $body);
             }
+        }
+    }
+
+    public function testStandardOwnerTokens()
+    {
+        $mockFactory = $this->getMockFactory();
+
+        $transport   = new SmtpTransport();
+        $swiftMailer = new \Swift_Mailer($transport);
+
+        $mailer = new MailHelper($mockFactory, $swiftMailer, ['nobody@nowhere.com' => 'No Body']);
+        $body   =<<<EOF
+Owner First Name: {contactfield=owner_first_name}
+Owner Last Name: {contactfield=owner_last_name}
+Owner Email: {contactfield=owner_email}
+EOF;
+
+        $mailer->setBody($body);
+
+        foreach ($this->contacts as $key => $contact) {
+            $mailer->addTo($contact['email']);
+            $mailer->setLead($contact);
+            $mailer->send();
+
+            $body = $mailer->message->getBody();
+
+            $owner = $mockFactory->getModel('lead')->getRepository()->getLeadOwner($contact['owner_id']);
+            $this->assertContains(sprintf('Owner First Name: %s', $owner['first_name']), $body);
+            $this->assertContains(sprintf('Owner Last Name: %s', $owner['last_name']), $body);
+            $this->assertContains(sprintf('Owner Email: %s', $owner['email']), $body);
         }
     }
 
