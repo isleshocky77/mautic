@@ -1543,9 +1543,9 @@ class MailHelper
 
         $contactOwner = $this->getContactOwner($this->lead);
         if ($contactOwner) {
-            $tokens['{contactfield=owner_email}']      = strlen($contactOwner['email']) ? $contactOwner['email'] : '';
-            $tokens['{contactfield=owner_first_name}'] = strlen($contactOwner['first_name']) ? $contactOwner['first_name'] : '';
-            $tokens['{contactfield=owner_last_name}']  = strlen($contactOwner['last_name']) ? $contactOwner['last_name'] : '';
+            $tokens['{contactfield=owner_email}']      = (string) $contactOwner['email'];
+            $tokens['{contactfield=owner_first_name}'] = (string) $contactOwner['first_name'];
+            $tokens['{contactfield=owner_last_name}']  = (string) $contactOwner['last_name'];
         }
 
         return $tokens;
