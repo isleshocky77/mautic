@@ -520,7 +520,10 @@ class PublicController extends CommonFormController
                 $field = "[$field]";
             }
         );
-        $fields['id'] = 0;
+        $fields['id']               = 0;
+        $fields['owner_first_name'] = '[Owner First Name]';
+        $fields['owner_last_name']  = '[Owner Last Name]';
+        $fields['owner_email']      = '[Owner Email]';
 
         // Generate and replace tokens
         $event = new EmailSendEvent(
