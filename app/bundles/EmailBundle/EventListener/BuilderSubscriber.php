@@ -285,6 +285,11 @@ class BuilderSubscriber extends CommonSubscriber
         $event->addToken('{signature}', EmojiHelper::toHtml($signatureText));
 
         $event->addToken('{subject}', EmojiHelper::toHtml($event->getSubject()));
+
+        // Setup default Owner tokens
+        $event->addToken('{contactfield=owner_first_name}', $email->getFromName());
+        $event->addToken('{contactfield=owner_last_name}', '');
+        $event->addToken('{contactfield=owner_email}', $email->getFromAddress());
     }
 
     /**
