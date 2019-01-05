@@ -1387,7 +1387,10 @@ class EmailController extends FormController
                         $field = "[$field]";
                     }
                 );
-                $fields['id'] = 0;
+                $fields['id']               = 0;
+                $fields['owner_first_name'] = '[Owner First Name]';
+                $fields['owner_last_name']  = '[Owner Last Name]';
+                $fields['owner_email']      = '[Owner Email]';
 
                 $errors = [];
                 foreach ($emails as $email) {
@@ -1475,7 +1478,10 @@ class EmailController extends FormController
                 $field = "[$field]";
             }
         );
-        $fields['id'] = 0;
+        $fields['id']               = 0;
+        $fields['owner_first_name'] = '[Owner First Name]';
+        $fields['owner_last_name']  = '[Owner Last Name]';
+        $fields['owner_email']      = '[Owner Email]';
 
         // Send to current user
         $user  = $this->user;
