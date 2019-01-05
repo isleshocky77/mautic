@@ -16,6 +16,7 @@ use Mautic\CoreBundle\Form\Type\SlotTextType;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\EmojiHelper;
 use Mautic\EmailBundle\EmailEvents;
+use Mautic\EmailBundle\Entity\Email;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
 use Mautic\EmailBundle\Model\EmailModel;
@@ -287,9 +288,9 @@ class BuilderSubscriber extends CommonSubscriber
         $event->addToken('{subject}', EmojiHelper::toHtml($event->getSubject()));
 
         // Setup default Owner tokens
-        $event->addToken('{contactfield=owner_first_name}', $email->getFromName());
+        $event->addToken('{contactfield=owner_first_name}', $email instanceof Email ? $email->getFromName() : '');
         $event->addToken('{contactfield=owner_last_name}', '');
-        $event->addToken('{contactfield=owner_email}', $email->getFromAddress());
+        $event->addToken('{contactfield=owner_email}', $email instanceof Email ? $email->getFromAddress() : '');
     }
 
     /**
